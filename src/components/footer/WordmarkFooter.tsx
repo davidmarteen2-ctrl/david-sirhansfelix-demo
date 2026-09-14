@@ -113,10 +113,7 @@ export function WordmarkFooter() {
       ref={footerRef}
       className="relative w-full bg-[#050505] text-white overflow-hidden"
       style={{
-        borderRadius: "48px 48px 0 0",
         marginTop: "-48px",
-        position: "relative",
-        zIndex: 10,
       }}
     >
       

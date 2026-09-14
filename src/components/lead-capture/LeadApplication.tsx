@@ -101,7 +101,12 @@ export function LeadApplication({ preferredPlan = "" }: LeadApplicationProps) {
   return (
     <section
       id="apply"
-      className="scroll-mt-24 px-4 py-20 sm:px-6 sm:py-28 bg-[var(--color-canvas)]"
+      className="scroll-mt-24 px-4 pt-20 pb-28 sm:px-6 sm:pt-28 sm:pb-36 bg-[var(--color-canvas)]"
+      style={{
+        borderRadius: "0 0 48px 48px",
+        position: "relative",
+        zIndex: 10,
+      }}
     >
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-16">
 
