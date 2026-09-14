@@ -1,0 +1,144 @@
+/* Partner Bar Marquee — Duplicated directly from Olixer Forex */
+.partners-marquee-section {
+  border-top: 1px solid var(--color-border, #E5E7EB);
+  margin-top: 0;
+  padding: 32px 0 36px;
+  background-color: var(--color-canvas, #F3F4F6);
+  position: relative;
+  overflow: hidden;
+}
+
+.partners-marquee {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.partners-marquee::before,
+.partners-marquee::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 140px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.partners-marquee::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--color-canvas, #F3F4F6) 15%, transparent);
+}
+
+.partners-marquee::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--color-canvas, #F3F4F6) 15%, transparent);
+}
+
+.partners-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: olixer-mloop 32s linear infinite;
+}
+
+.partners-marquee:hover .partners-marquee-track {
+  animation-play-state: paused;
+}
+
+.partners-mgroup {
+  display: flex;
+  align-items: center;
+  gap: 76px;
+  padding-right: 76px;
+}
+
+@keyframes olixer-mloop {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partners-marquee-track {
+    animation: none;
+  }
+}
+
+.olixer-plogo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8F939A;
+  fill: #8F939A;
+  user-select: none;
+  cursor: default;
+  transition: color 0.25s ease;
+}
+
+.olixer-plogo .wm {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.olixer-plogo img {
+  display: block;
+  filter: grayscale(1) opacity(0.68);
+  transition: filter 0.25s ease, opacity 0.25s ease;
+}
+
+.olixer-plogo:hover img {
+  filter: grayscale(0) opacity(1);
+}
+
+.olixer-plogo.ct .wm {
+  font-style: italic;
+  font-weight: 900;
+  font-size: 21px;
+  letter-spacing: -0.03em;
+  transition: color 0.25s ease;
+}
+
+.olixer-plogo.ct .c-red {
+  color: inherit;
+  transition: color 0.25s ease;
+}
+
+.olixer-plogo.ct:hover .wm {
+  color: #2B2B2B;
+}
+
+.olixer-plogo.ct:hover .c-red {
+  color: #E32B2B;
+}
+
+.olixer-plogo svg {
+  transition: fill 0.25s ease, color 0.25s ease;
+}
+
+.olixer-plogo.tv:hover {
+  fill: #2962FF;
+  color: #131722;
+}
+
+.olixer-plogo.tv:hover svg {
+  fill: #2962FF;
+}
+
+@media (max-width: 760px) {
+  .partners-marquee-section {
+    padding: 24px 0 28px;
+  }
+
+  .partners-marquee::before,
+  .partners-marquee::after {
+    width: 40px;
+  }
+
+  .partners-mgroup {
+    gap: 44px;
+    padding-right: 44px;
+  }
+}

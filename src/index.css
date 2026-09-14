@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #F3F4F6;
+  --color-surface: #FFFFFF;
+  --color-primary: #111111;
+  --color-secondary: #666A73;
+  --color-muted: #92969F;
+  --color-border: #E7E8EB;
+  --color-success: #248A3D;
+  --color-negative: #D92D20;
+  
+  --color-trading-positive: #248A3D;
+  --color-trading-positive-soft: rgba(36, 138, 61, 0.1);
+  --color-trading-negative: #D92D20;
+  --color-trading-negative-soft: rgba(217, 45, 32, 0.1);
+  --color-trading-neutral: #888888;
+
+  --radius-control: 8px;
+  --radius-card: 20px;
+  --radius-feature: 24px;
+  
+  --font-sans: "Inter", system-ui, sans-serif;
+  
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+
+  --animate-marquee: marquee 32s linear infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

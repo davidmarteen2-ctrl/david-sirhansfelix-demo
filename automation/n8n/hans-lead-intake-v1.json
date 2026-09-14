@@ -1,0 +1,251 @@
+{
+  "name": "SirHansFelix Lead Intake v1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hans-leads",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "webhook-hans",
+      "name": "Receive Website Lead"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst raw = $json.body ?? $json;\nconst lead = typeof raw === 'string' ? JSON.parse(raw) : raw;\nconst now = new Date();\nconst score = Number(lead.leadScore != null ? lead.leadScore : 0);\nconst isQualified = score >= 7;\n\nreturn [{\n  json: {\n    ...lead,\n    leadScore: score,\n    qualificationStatus: isQualified ? 'Qualified' : 'Nurture',\n    status: isQualified ? 'Qualified' : 'Nurture',\n    emailStatus: 'Pending',\n    bookingStatus: isQualified ? 'Invited' : 'Not Invited',\n    followUpStage: isQualified ? '0' : 'Complete',\n    nextFollowUpAt: isQualified ? new Date(now.getTime() + 86400000).toISOString() : '',\n    lastContactedAt: '',\n    stoppedReason: isQualified ? '' : 'Nurture',\n    appointmentStart: '',\n    appointmentEventId: '',\n    receivedAt: now.toISOString()\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "code-state",
+      "name": "Initialize Revenue State"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-FeERbZmWeEP1dkHw2wL-bOvTrvTctAoVKbTuwqsjis",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Applications",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "submittedAt": "={{ $json.submittedAt || $json.receivedAt }}",
+            "source": "={{ $json.source }}",
+            "leadScore": "={{ $json.leadScore }}",
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "contactHandle": "={{ $json.contactHandle }}",
+            "experience": "={{ $json.experience }}",
+            "market": "={{ $json.market }}",
+            "interest": "={{ $json.interest }}",
+            "problem": "={{ $json.problem }}",
+            "nextStep": "={{ $json.nextStep }}",
+            "chosenPlan": "={{ $json.chosenPlan || 'None selected' }}",
+            "status": "={{ $json.qualificationStatus }}",
+            "qualificationStatus": "={{ $json.qualificationStatus }}",
+            "emailStatus": "={{ $json.emailStatus || 'Pending' }}",
+            "bookingStatus": "={{ $json.bookingStatus || ($json.qualificationStatus === 'Qualified' ? 'Invited' : 'Not Invited') }}",
+            "followUpStage": "={{ $json.followUpStage || ($json.qualificationStatus === 'Qualified' ? '0' : 'Complete') }}",
+            "nextFollowUpAt": "={{ $json.nextFollowUpAt || '' }}",
+            "lastContactedAt": "={{ $json.lastContactedAt || '' }}",
+            "stoppedReason": "={{ $json.stoppedReason || ($json.qualificationStatus === 'Qualified' ? '' : 'Nurture') }}",
+            "appointmentStart": "={{ $json.appointmentStart || '' }}",
+            "reminder24hSent": "",
+            "reminder1hSent": "",
+            "attendanceStatus": "",
+            "postCallFollowUpSent": "",
+            "postCallFollowUpAt": ""
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        440,
+        0
+      ],
+      "id": "sheets-save",
+      "name": "Save Lead",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "98yGvGkDT6koQqDa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"ok\": true,\n  \"leadId\": \"{{ $('Initialize Revenue State').first().json.leadId }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        700,
+        -100
+      ],
+      "id": "respond-site",
+      "name": "Respond to Website"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-score",
+              "leftValue": "={{ $('Initialize Revenue State').first().json.leadScore }}",
+              "rightValue": 7,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        700,
+        100
+      ],
+      "id": "if-qualified",
+      "name": "Qualified Score 7+"
+    },
+    {
+      "parameters": {
+        "chatId": "399527823",
+        "text": "=\ud83d\udd25 NEW SIRHANSFELIX LEAD\n\nName: {{ $('Initialize Revenue State').first().json.name }}\nScore: {{ $('Initialize Revenue State').first().json.leadScore }}/12\nStatus: QUALIFIED\nContact: {{ $('Initialize Revenue State').first().json.contactHandle }}\nEmail: {{ $('Initialize Revenue State').first().json.email }}\n\nExperience: {{ $('Initialize Revenue State').first().json.experience }}\nMarket: {{ $('Initialize Revenue State').first().json.market }}\nInterest: {{ $('Initialize Revenue State').first().json.interest }}\nPlan: {{ $('Initialize Revenue State').first().json.chosenPlan || 'None selected' }}\nNext step: {{ $('Initialize Revenue State').first().json.nextStep }}\n\n\ud83c\udfaf Biggest problem:\n{{ $('Initialize Revenue State').first().json.problem }}\n\nLead ID: {{ $('Initialize Revenue State').first().json.leadId }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        950,
+        0
+      ],
+      "id": "telegram-qualified",
+      "name": "Alert Qualified Lead",
+      "credentials": {
+        "telegramApi": {
+          "id": "g447b9DjL3eu4K8P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "399527823",
+        "text": "=\ud83d\udfe1 SIRHANSFELIX NURTURE LEAD\n\nName: {{ $('Initialize Revenue State').first().json.name }}\nScore: {{ $('Initialize Revenue State').first().json.leadScore }}/12\nStatus: NURTURE\nContact: {{ $('Initialize Revenue State').first().json.contactHandle }}\nEmail: {{ $('Initialize Revenue State').first().json.email }}\n\nExperience: {{ $('Initialize Revenue State').first().json.experience }}\nMarket: {{ $('Initialize Revenue State').first().json.market }}\nInterest: {{ $('Initialize Revenue State').first().json.interest }}\nPlan: {{ $('Initialize Revenue State').first().json.chosenPlan || 'None selected' }}\nNext step: {{ $('Initialize Revenue State').first().json.nextStep }}\n\n\ud83c\udfaf Biggest problem:\n{{ $('Initialize Revenue State').first().json.problem }}\n\nLead ID: {{ $('Initialize Revenue State').first().json.leadId }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        950,
+        200
+      ],
+      "id": "telegram-nurture",
+      "name": "Alert Nurture Lead",
+      "credentials": {
+        "telegramApi": {
+          "id": "g447b9DjL3eu4K8P",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Receive Website Lead": {
+      "main": [
+        [
+          {
+            "node": "Initialize Revenue State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Revenue State": {
+      "main": [
+        [
+          {
+            "node": "Save Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Lead": {
+      "main": [
+        [
+          {
+            "node": "Respond to Website",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Qualified Score 7+",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualified Score 7+": {
+      "main": [
+        [
+          {
+            "node": "Alert Qualified Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Nurture Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
