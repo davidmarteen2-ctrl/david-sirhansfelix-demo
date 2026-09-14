@@ -7,7 +7,12 @@ export function WordmarkFooter() {
   const shouldReduceMotion = useReducedMotion();
   const footerRef = React.useRef<HTMLElement>(null);
   const stageRef = React.useRef<HTMLDivElement>(null);
-  
+  const topRailRef = React.useRef<HTMLDivElement>(null);
+  const bottomRailRef = React.useRef<HTMLDivElement>(null);
+
+  const topRailInView   = useInView(topRailRef,    { once: true, margin: "-8% 0px" });
+  const bottomInView    = useInView(bottomRailRef, { once: true, margin: "-8% 0px" });
+
   // Pointer smoothing refs
   const targetX = React.useRef(0);
   const targetY = React.useRef(0);
@@ -90,8 +95,29 @@ export function WordmarkFooter() {
 
   const isInView = useInView(footerRef, { once: true, margin: "-10% 0px" });
 
+  // Shared reveal variants
+  const fadeUp = {
+    hidden: { opacity: 0, y: 22 },
+    show:   { opacity: 1, y: 0  },
+  };
+  const stagger = (i: number) => ({
+    duration: 0.55,
+    ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+    delay: shouldReduceMotion ? 0 : i * 0.07,
+  });
+
   return (
-    <footer ref={footerRef} className="relative w-full bg-[#050505] text-white overflow-hidden">
+    <footer
+      ref={footerRef}
+      className="relative w-full bg-[#050505] text-white overflow-hidden"
+      style={{
+        /* Rounded top edge that slides up and overtakes the form section */
+        borderRadius: "48px 48px 0 0",
+        marginTop: "-48px",
+        position: "relative",
+        zIndex: 10,
+      }}
+    >
       
       <style dangerouslySetInnerHTML={{__html: `
         .wordmark-reveal-layer {
@@ -118,25 +144,53 @@ export function WordmarkFooter() {
 
       <div className="max-w-[1280px] mx-auto px-6 lg:px-12 flex flex-col min-h-[60vh] lg:min-h-[75vh]">
         
-        {/* Footer Top Rail */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-10 lg:py-12 gap-8 z-10 relative">
-          <div className="font-serif italic text-[22px] tracking-tight text-white/90">SirHansFelix</div>
-          
+        {/* Footer Top Rail — staggered scroll reveal */}
+        <div
+          ref={topRailRef}
+          className="flex flex-col md:flex-row justify-between items-start md:items-center py-10 lg:py-12 gap-8 z-10 relative"
+        >
+          {/* Wordmark */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate={topRailInView ? "show" : "hidden"}
+            transition={stagger(0)}
+            className="font-serif italic text-[22px] tracking-tight text-white/90"
+          >
+            SirHansFelix
+          </motion.div>
+
           <nav aria-label="Footer" className="flex flex-wrap items-center gap-6 lg:gap-10 text-[13px] font-medium tracking-wide">
-            <a href="#offers" className="text-white/60 hover:text-white transition-colors duration-200">Offers</a>
-            <a href="#signals" className="text-white/60 hover:text-white transition-colors duration-200">Signals</a>
-            <a href="#telegram" className="text-white/60 hover:text-white transition-colors duration-200">Telegram</a>
-            <a href="#about" className="text-white/60 hover:text-white transition-colors duration-200">About</a>
-            <Button 
-              variant="feature-action" 
-              iconName="arrow-up-right"
-              className="text-white/90 p-0 h-auto"
-              href={TELEGRAM_WELCOMING_URL} 
-              target="_blank" 
-              rel="noopener noreferrer"
+            {(["Offers", "Signals", "Telegram", "About"] as const).map((label, i) => (
+              <motion.a
+                key={label}
+                href={`#${label.toLowerCase()}`}
+                variants={fadeUp}
+                initial="hidden"
+                animate={topRailInView ? "show" : "hidden"}
+                transition={stagger(i + 1)}
+                className="text-white/60 hover:text-white transition-colors duration-200"
+              >
+                {label}
+              </motion.a>
+            ))}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate={topRailInView ? "show" : "hidden"}
+              transition={stagger(5)}
             >
-              Join Telegram 
-            </Button>
+              <Button
+                variant="feature-action"
+                iconName="arrow-up-right"
+                className="text-white/90 p-0 h-auto"
+                href={TELEGRAM_WELCOMING_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Join Telegram
+              </Button>
+            </motion.div>
           </nav>
         </div>
 
@@ -172,14 +226,21 @@ export function WordmarkFooter() {
           </motion.div>
         </div>
 
-        {/* Footer Bottom Rail */}
-        <div className="flex flex-col sm:flex-row justify-between items-center py-6 lg:py-8 border-t border-white/10 gap-4 mt-auto relative z-10">
+        {/* Footer Bottom Rail — scroll reveal */}
+        <motion.div
+          ref={bottomRailRef}
+          variants={fadeUp}
+          initial="hidden"
+          animate={bottomInView ? "show" : "hidden"}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: shouldReduceMotion ? 0 : 0.15 }}
+          className="flex flex-col sm:flex-row justify-between items-center py-6 lg:py-8 border-t border-white/10 gap-4 mt-auto relative z-10"
+        >
           <div className="text-xs text-white/50 tracking-wide">&copy; {new Date().getFullYear()} SirHansFelix. All rights reserved.</div>
           <div className="flex gap-6 text-xs text-white/50 tracking-wide">
             <a href="#" className="hover:text-white transition-colors duration-200">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors duration-200">Terms of Service</a>
           </div>
-        </div>
+        </motion.div>
 
       </div>
     </footer>
