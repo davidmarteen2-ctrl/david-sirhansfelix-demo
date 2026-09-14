@@ -17,8 +17,10 @@ function PartnerLogoGroup({ ariaHidden }: { ariaHidden?: boolean }) {
           src="/assets/logos/metatrader-official.png"
           alt="MetaTrader"
           height={28}
+          width={28}
           className="h-[28px] w-auto object-contain"
-          loading="lazy"
+          loading="eager"
+          decoding="async"
         />
         <span className="wm" style={{ fontSize: "18px", fontWeight: 600 }}>
           MetaTrader
@@ -52,8 +54,10 @@ function PartnerLogoGroup({ ariaHidden }: { ariaHidden?: boolean }) {
           src="/assets/logos/primexm-official.png"
           alt="PrimeXM"
           height={30}
+          width={90}
           className="h-[30px] w-auto object-contain"
-          loading="lazy"
+          loading="eager"
+          decoding="async"
         />
       </span>
 
@@ -63,8 +67,10 @@ function PartnerLogoGroup({ ariaHidden }: { ariaHidden?: boolean }) {
           src="/assets/logos/pepperstone-official.svg"
           alt="Pepperstone"
           height={30}
+          width={120}
           className="h-[30px] w-auto object-contain"
-          loading="lazy"
+          loading="eager"
+          decoding="async"
         />
       </span>
 
@@ -74,8 +80,10 @@ function PartnerLogoGroup({ ariaHidden }: { ariaHidden?: boolean }) {
           src="/assets/logos/eightcap-official.svg"
           alt="Eightcap"
           height={24}
+          width={90}
           className="h-[24px] w-auto object-contain"
-          loading="lazy"
+          loading="eager"
+          decoding="async"
         />
       </span>
 
@@ -85,8 +93,10 @@ function PartnerLogoGroup({ ariaHidden }: { ariaHidden?: boolean }) {
           src="/assets/logos/oanda-official.svg"
           alt="OANDA"
           height={20}
+          width={80}
           className="h-[20px] w-auto object-contain"
-          loading="lazy"
+          loading="eager"
+          decoding="async"
         />
       </span>
 
@@ -96,8 +106,10 @@ function PartnerLogoGroup({ ariaHidden }: { ariaHidden?: boolean }) {
           src="/assets/logos/forexcom-official.svg"
           alt="FOREX.com"
           height={26}
+          width={100}
           className="h-[26px] w-auto object-contain"
-          loading="lazy"
+          loading="eager"
+          decoding="async"
         />
       </span>
     </div>
@@ -108,11 +120,20 @@ export function PartnerLogoMarquee() {
   return (
     <section className="partners-marquee-section">
       <div className="partners-marquee">
+        {/*
+          4 groups: 1 visible + 3 aria-hidden duplicates.
+          Track animates translateX(-50%) which scrolls exactly 2 groups,
+          then loops seamlessly back to the start. 4 groups = always
+          enough content to fill any screen width without a visible gap.
+        */}
         <div className="partners-marquee-track">
           <PartnerLogoGroup />
+          <PartnerLogoGroup ariaHidden />
+          <PartnerLogoGroup ariaHidden />
           <PartnerLogoGroup ariaHidden />
         </div>
       </div>
     </section>
   );
 }
+

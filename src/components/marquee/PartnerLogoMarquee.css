@@ -1,17 +1,23 @@
-/* Partner Bar Marquee — Duplicated directly from Olixer Forex */
+/* Partner Bar Marquee — SirHansFelix */
+
+/* ── Section wrapper ─────────────────────────────────────────────────────── */
 .partners-marquee-section {
   border-top: 1px solid var(--color-border, #E5E7EB);
   margin-top: 0;
   padding: 32px 0 36px;
   background-color: var(--color-canvas, #F3F4F6);
-  position: relative;
+  /* prevent horizontal overflow bleed */
   overflow: hidden;
+  position: relative;
 }
 
+/* ── Outer mask + fade gradients ─────────────────────────────────────────── */
 .partners-marquee {
   position: relative;
   overflow: hidden;
   width: 100%;
+  /* isolate stacking context so z-index on pseudo-elements is contained */
+  isolation: isolate;
 }
 
 .partners-marquee::before,
@@ -20,62 +26,74 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 140px;
+  width: 120px;
   z-index: 2;
   pointer-events: none;
 }
 
 .partners-marquee::before {
   left: 0;
-  background: linear-gradient(90deg, var(--color-canvas, #F3F4F6) 15%, transparent);
+  background: linear-gradient(90deg, var(--color-canvas, #F3F4F6) 30%, transparent 100%);
 }
 
 .partners-marquee::after {
   right: 0;
-  background: linear-gradient(270deg, var(--color-canvas, #F3F4F6) 15%, transparent);
+  background: linear-gradient(270deg, var(--color-canvas, #F3F4F6) 30%, transparent 100%);
 }
 
+/* ── Track — GPU-composited infinite scroll ──────────────────────────────── */
 .partners-marquee-track {
   display: flex;
+  /* width auto so it naturally wraps to actual content width */
   width: max-content;
-  animation: olixer-mloop 32s linear infinite;
+  /* GPU layer — eliminates repaints every frame */
+  will-change: transform;
+  /* lock layout so image-load jank cannot shift the track mid-animation */
+  contain: paint style;
+  animation: mq-loop 36s linear infinite;
 }
 
 .partners-marquee:hover .partners-marquee-track {
   animation-play-state: paused;
 }
 
+/* ── One group of logos ──────────────────────────────────────────────────── */
 .partners-mgroup {
   display: flex;
   align-items: center;
-  gap: 76px;
-  padding-right: 76px;
+  gap: 64px;
+  /* right padding = gap, so the join between groups is identical to the gap between logos */
+  padding-right: 64px;
+  /* prevent any text wrapping inside a logo slot */
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-@keyframes olixer-mloop {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+/* ── Keyframes — translate by exactly one group width (50% of 2 groups) ─── */
+@keyframes mq-loop {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 
+/* ── Accessibility: honour reduced-motion ───────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .partners-marquee-track {
     animation: none;
   }
 }
 
+/* ── Logo pill styles ────────────────────────────────────────────────────── */
 .olixer-plogo {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 8px;
   color: #8F939A;
   fill: #8F939A;
   user-select: none;
   cursor: default;
   transition: color 0.25s ease;
+  white-space: nowrap;
 }
 
 .olixer-plogo .wm {
@@ -83,16 +101,19 @@
   letter-spacing: -0.02em;
 }
 
+/* Images: eager (in viewport) — kills the pop-in flash */
 .olixer-plogo img {
   display: block;
-  filter: grayscale(1) opacity(0.68);
-  transition: filter 0.25s ease, opacity 0.25s ease;
+  flex-shrink: 0;
+  filter: grayscale(1) opacity(0.6);
+  transition: filter 0.25s ease;
 }
 
 .olixer-plogo:hover img {
   filter: grayscale(0) opacity(1);
 }
 
+/* cTrader wordmark */
 .olixer-plogo.ct .wm {
   font-style: italic;
   font-weight: 900;
@@ -114,7 +135,9 @@
   color: #E32B2B;
 }
 
+/* TradingView SVG */
 .olixer-plogo svg {
+  flex-shrink: 0;
   transition: fill 0.25s ease, color 0.25s ease;
 }
 
@@ -127,18 +150,26 @@
   fill: #2962FF;
 }
 
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media (max-width: 760px) {
   .partners-marquee-section {
-    padding: 24px 0 28px;
+    padding: 20px 0 24px;
   }
 
+  /* Wider fade on mobile so logos don't bleed into the edges */
   .partners-marquee::before,
   .partners-marquee::after {
-    width: 40px;
+    width: 64px;
   }
 
   .partners-mgroup {
-    gap: 44px;
-    padding-right: 44px;
+    gap: 40px;
+    padding-right: 40px;
+  }
+
+  /* Slightly faster on mobile for energy */
+  .partners-marquee-track {
+    animation-duration: 28s;
   }
 }
+
