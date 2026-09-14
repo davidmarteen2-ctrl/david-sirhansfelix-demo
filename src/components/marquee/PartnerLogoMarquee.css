@@ -6,7 +6,6 @@
   margin-top: 0;
   padding: 32px 0 36px;
   background-color: var(--color-canvas, #F3F4F6);
-  /* prevent horizontal overflow bleed */
   overflow: hidden;
   position: relative;
 }
@@ -16,68 +15,76 @@
   position: relative;
   overflow: hidden;
   width: 100%;
-  /* isolate stacking context so z-index on pseudo-elements is contained */
   isolation: isolate;
+  -webkit-mask-image: -webkit-radial-gradient(white, black); /* Fix Safari overflow hidden glitch */
 }
 
+/* Fade gradients: use exact canvas color fading to transparent canvas color to eliminate dark fringes */
 .partners-marquee::before,
 .partners-marquee::after {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 120px;
+  width: 100px;
   z-index: 2;
   pointer-events: none;
 }
 
 .partners-marquee::before {
   left: 0;
-  background: linear-gradient(90deg, var(--color-canvas, #F3F4F6) 30%, transparent 100%);
+  background: linear-gradient(90deg, #F3F4F6 20%, rgba(243, 244, 246, 0) 100%);
 }
 
 .partners-marquee::after {
   right: 0;
-  background: linear-gradient(270deg, var(--color-canvas, #F3F4F6) 30%, transparent 100%);
+  background: linear-gradient(270deg, #F3F4F6 20%, rgba(243, 244, 246, 0) 100%);
 }
 
-/* ── Track — GPU-composited infinite scroll ──────────────────────────────── */
+/* ── Track ──────────────────────────────────────────────────────────────── */
 .partners-marquee-track {
   display: flex;
-  /* width auto so it naturally wraps to actual content width */
   width: max-content;
-  /* GPU layer — eliminates repaints every frame */
-  will-change: transform;
-  /* lock layout so image-load jank cannot shift the track mid-animation */
-  contain: paint style;
-  animation: mq-loop 36s linear infinite;
+  user-select: none;
 }
 
-.partners-marquee:hover .partners-marquee-track {
-  animation-play-state: paused;
-}
-
-/* ── One group of logos ──────────────────────────────────────────────────── */
+/* ── Individual groups animate independently ────────────────────────────── */
+/* Each group translates -100% of its own width. Because each group is ~1400px, 
+   no single layer ever exceeds mobile GPU texture limits (4096px), completely 
+   eliminating the mobile iOS Safari texture-dropping and tearing glitch. */
 .partners-mgroup {
   display: flex;
   align-items: center;
   gap: 64px;
-  /* right padding = gap, so the join between groups is identical to the gap between logos */
   padding-right: 64px;
-  /* prevent any text wrapping inside a logo slot */
   white-space: nowrap;
   flex-shrink: 0;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  animation: mq-slide 32s linear infinite;
 }
 
-/* ── Keyframes — translate by exactly one group width (50% of 2 groups) ─── */
-@keyframes mq-loop {
-  0%   { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-50%, 0, 0); }
+@keyframes mq-slide {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+/* Pause on hover ONLY for mouse pointer devices (never freeze on mobile touch scroll) */
+@media (hover: hover) and (pointer: fine) {
+  .partners-marquee:hover .partners-mgroup {
+    animation-play-state: paused;
+  }
 }
 
 /* ── Accessibility: honour reduced-motion ───────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .partners-marquee-track {
+  .partners-mgroup {
     animation: none;
   }
 }
@@ -101,7 +108,7 @@
   letter-spacing: -0.02em;
 }
 
-/* Images: eager (in viewport) — kills the pop-in flash */
+/* Images: eager + explicit aspect ratios to prevent layout shifts */
 .olixer-plogo img {
   display: block;
   flex-shrink: 0;
@@ -156,20 +163,15 @@
     padding: 20px 0 24px;
   }
 
-  /* Wider fade on mobile so logos don't bleed into the edges */
+  /* Compact edge fade on mobile */
   .partners-marquee::before,
   .partners-marquee::after {
-    width: 64px;
+    width: 44px;
   }
 
   .partners-mgroup {
-    gap: 40px;
-    padding-right: 40px;
-  }
-
-  /* Slightly faster on mobile for energy */
-  .partners-marquee-track {
-    animation-duration: 28s;
+    gap: 36px;
+    padding-right: 36px;
+    animation-duration: 22s;
   }
 }
-
