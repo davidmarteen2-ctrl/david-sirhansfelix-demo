@@ -1,7 +1,16 @@
 import * as React from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import { TELEGRAM_WELCOMING_URL } from "@/lib/config";
-import { Button } from "@/components/ui/Button";
+import { 
+  ArrowUpRight, 
+  Send, 
+  ShieldCheck, 
+  Activity, 
+  CheckCircle2, 
+  Lock, 
+  TrendingUp,
+  Globe2
+} from "lucide-react";
 
 export function WordmarkFooter() {
   const shouldReduceMotion = useReducedMotion();
@@ -11,11 +20,11 @@ export function WordmarkFooter() {
   const bottomRailRef = React.useRef<HTMLDivElement>(null);
   const wordmarkRef   = React.useRef<HTMLDivElement>(null);
 
-  const topRailInView   = useInView(topRailRef,    { once: true, margin: "-8% 0px" });
-  const bottomInView    = useInView(bottomRailRef, { once: true, margin: "-8% 0px" });
-  const wordmarkInView  = useInView(wordmarkRef,   { once: true, margin: "-12% 0px" });
+  const topRailInView   = useInView(topRailRef,    { once: true, margin: "-6% 0px" });
+  const bottomInView    = useInView(bottomRailRef, { once: true, margin: "-6% 0px" });
+  const wordmarkInView  = useInView(wordmarkRef,   { once: true, margin: "-8% 0px" });
 
-  // Pointer smoothing refs
+  // Pointer smoothing refs for the wordmark spotlight
   const targetX = React.useRef(0);
   const targetY = React.useRef(0);
   const currentX = React.useRef(0);
@@ -31,7 +40,6 @@ export function WordmarkFooter() {
   const updatePointer = React.useCallback(() => {
     if (!stageRef.current) return;
     
-    // Smooth the coordinate and opacity values
     currentX.current = lerp(currentX.current, targetX.current, 0.15);
     currentY.current = lerp(currentY.current, targetY.current, 0.15);
     currentOpacity.current = lerp(currentOpacity.current, targetOpacity.current, 0.1);
@@ -40,7 +48,6 @@ export function WordmarkFooter() {
     stageRef.current.style.setProperty('--spotlight-y', `${currentY.current}px`);
     stageRef.current.style.setProperty('--spotlight-opacity', `${currentOpacity.current}`);
 
-    // If still moving, request next frame
     const isMoving = 
       Math.abs(currentX.current - targetX.current) > 0.1 ||
       Math.abs(currentY.current - targetY.current) > 0.1 ||
@@ -95,17 +102,15 @@ export function WordmarkFooter() {
     };
   }, []);
 
-  const isInView = useInView(footerRef, { once: true, margin: "-10% 0px" });
-
   // Shared reveal variants
   const fadeUp = {
-    hidden: { opacity: 0, y: 22 },
+    hidden: { opacity: 0, y: 20 },
     show:   { opacity: 1, y: 0  },
   };
   const stagger = (i: number) => ({
     duration: 0.55,
     ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-    delay: shouldReduceMotion ? 0 : i * 0.07,
+    delay: shouldReduceMotion ? 0 : i * 0.06,
   });
 
   return (
@@ -116,13 +121,12 @@ export function WordmarkFooter() {
         marginTop: "-48px",
       }}
     >
-      
       <style dangerouslySetInnerHTML={{__html: `
         .wordmark-reveal-layer {
           mask-image: radial-gradient(circle 220px at var(--spotlight-x, -1000px) var(--spotlight-y, -1000px), rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 18%, rgba(0,0,0,0.55) 42%, rgba(0,0,0,0) 68%);
           -webkit-mask-image: radial-gradient(circle 220px at var(--spotlight-x, -1000px) var(--spotlight-y, -1000px), rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 18%, rgba(0,0,0,0.55) 42%, rgba(0,0,0,0) 68%);
           opacity: var(--spotlight-opacity, 0);
-          transition: opacity 0.1s ease-out; /* fallback if JS is disabled */
+          transition: opacity 0.1s ease-out;
         }
         @media (hover: none) and (pointer: coarse) {
           .wordmark-reveal-layer {
@@ -140,65 +144,215 @@ export function WordmarkFooter() {
         }
       `}} />
 
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-12 flex flex-col min-h-[60vh] lg:min-h-[75vh]">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-12 flex flex-col pt-24 sm:pt-28 lg:pt-32">
         
-        {/* Footer Top Rail — staggered scroll reveal */}
+        {/* Main Footer Content Grid */}
         <div
           ref={topRailRef}
-          className="flex flex-col md:flex-row justify-between items-start md:items-center py-10 lg:py-12 gap-8 z-10 relative"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 pb-16 border-b border-white/[0.08] relative z-10"
         >
-          {/* Wordmark */}
+          {/* Col 1: Brand & Institutional Identity (4 cols) */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate={topRailInView ? "show" : "hidden"}
             transition={stagger(0)}
-            className="font-serif italic text-[22px] tracking-tight text-white/90"
+            className="lg:col-span-4 flex flex-col pr-0 lg:pr-6"
           >
-            SirHansFelix
+            <div className="flex items-center gap-3 mb-4">
+              <span className="font-serif italic text-2xl tracking-tight text-white font-medium">
+                SirHansFelix
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-white/10 text-white/80 border border-white/10">
+                Praxis Protocol
+              </span>
+            </div>
+
+            <p className="text-[13px] leading-relaxed text-white/60 mb-6 max-w-sm">
+              Institutional FX execution desk, algorithmic order-flow architecture, and high-probability daily trade setups engineered for disciplined market operators.
+            </p>
+
+            {/* Live Trading Desk Status Indicator */}
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] mb-6">
+              <div className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </div>
+              <div className="text-xs">
+                <div className="font-medium text-white/90">London & New York Desks Active</div>
+                <div className="text-white/50 text-[11px]">Real-Time Liquidity Feeds • Live Setups</div>
+              </div>
+            </div>
+
+            {/* Quick Trust Badges */}
+            <div className="flex items-center gap-4 text-xs text-white/50">
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                Verified Track Record
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-white/60" />
+                Institutional Encryption
+              </span>
+            </div>
           </motion.div>
 
-          <nav aria-label="Footer" className="flex flex-wrap items-center gap-6 lg:gap-10 text-[13px] font-medium tracking-wide">
-            {(["Offers", "Signals", "Telegram", "About"] as const).map((label, i) => (
-              <motion.a
-                key={label}
-                href={`#${label.toLowerCase()}`}
-                variants={fadeUp}
-                initial="hidden"
-                animate={topRailInView ? "show" : "hidden"}
-                transition={stagger(i + 1)}
-                className="text-white/60 hover:text-white transition-colors duration-200"
-              >
-                {label}
-              </motion.a>
-            ))}
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate={topRailInView ? "show" : "hidden"}
-              transition={stagger(5)}
-            >
-              <Button
-                variant="feature-action"
-                iconName="arrow-up-right"
-                className="text-white/90 p-0 h-auto"
+          {/* Col 2: Signals & Strategies (2 cols) */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate={topRailInView ? "show" : "hidden"}
+            transition={stagger(1)}
+            className="lg:col-span-2 flex flex-col space-y-3.5"
+          >
+            <h4 className="text-[11px] font-semibold tracking-widest uppercase text-white/40">
+              Signals & Setups
+            </h4>
+            <ul className="space-y-2.5 text-[13px]">
+              <li>
+                <a href="#signals" className="text-white/70 hover:text-white transition-colors duration-200">
+                  London Open Setups
+                </a>
+              </li>
+              <li>
+                <a href="#signals" className="text-white/70 hover:text-white transition-colors duration-200">
+                  NY Session Breakouts
+                </a>
+              </li>
+              <li>
+                <a href="#trading-showcase" className="text-white/70 hover:text-white transition-colors duration-200">
+                  XAU/USD Gold Engine
+                </a>
+              </li>
+              <li>
+                <a href="#trading-showcase" className="text-white/70 hover:text-white transition-colors duration-200">
+                  Order Flow Models
+                </a>
+              </li>
+              <li>
+                <a href="#offers" className="text-white/70 hover:text-white transition-colors duration-200">
+                  Risk Management Rules
+                </a>
+              </li>
+              <li>
+                <a href="#offers" className="text-white/70 hover:text-white transition-colors duration-200">
+                  Performance Ledger
+                </a>
+              </li>
+            </ul>
+          </motion.div>
+
+          {/* Col 3: Membership & Access (2 cols) */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate={topRailInView ? "show" : "hidden"}
+            transition={stagger(2)}
+            className="lg:col-span-2 flex flex-col space-y-3.5"
+          >
+            <h4 className="text-[11px] font-semibold tracking-widest uppercase text-white/40">
+              Desk & Access
+            </h4>
+            <ul className="space-y-2.5 text-[13px]">
+              <li>
+                <a href={TELEGRAM_WELCOMING_URL} target="_blank" rel="noopener noreferrer" className="text-white/70 hover:text-white transition-colors duration-200 inline-flex items-center gap-1">
+                  Private VIP Telegram
+                  <ArrowUpRight className="w-3 h-3 text-white/40" />
+                </a>
+              </li>
+              <li>
+                <a href="#apply" className="text-white/70 hover:text-white transition-colors duration-200">
+                  Direct Trader Application
+                </a>
+              </li>
+              <li>
+                <a href="#broker" className="text-white/70 hover:text-white transition-colors duration-200">
+                  Institutional Broker Desk
+                </a>
+              </li>
+              <li>
+                <a href="#offers" className="text-white/70 hover:text-white transition-colors duration-200">
+                  Tier-1 Membership Tiers
+                </a>
+              </li>
+              <li>
+                <a href="#about" className="text-white/70 hover:text-white transition-colors duration-200">
+                  1-on-1 Portfolio Reviews
+                </a>
+              </li>
+              <li>
+                <a href="#community" className="text-white/70 hover:text-white transition-colors duration-200">
+                  Global Trader Network
+                </a>
+              </li>
+            </ul>
+          </motion.div>
+
+          {/* Col 4: Dispatch & Instant Channel Card (4 cols) */}
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate={topRailInView ? "show" : "hidden"}
+            transition={stagger(3)}
+            className="lg:col-span-4 flex flex-col"
+          >
+            <div className="p-6 rounded-2xl bg-gradient-to-b from-white/[0.05] to-white/[0.02] border border-white/[0.1] shadow-2xl relative overflow-hidden">
+              {/* Subtle ambient gradient accent */}
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/[0.04] rounded-full blur-2xl pointer-events-none" />
+
+              <div className="flex items-center gap-2 mb-2">
+                <Activity className="w-4 h-4 text-emerald-400" />
+                <h4 className="text-sm font-semibold tracking-tight text-white">
+                  Join the Live Telegram Dispatch
+                </h4>
+              </div>
+
+              <p className="text-[12px] text-white/60 leading-relaxed mb-5">
+                Receive immediate institutional alert dispatches, London session pre-market analysis, and real-time execution parameters.
+              </p>
+
+              <a
                 href={TELEGRAM_WELCOMING_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="group w-full inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-white text-black font-semibold text-xs tracking-wide hover:bg-white/90 active:scale-[0.99] transition-all shadow-[0_0_24px_rgba(255,255,255,0.15)] mb-4"
               >
-                Join Telegram
-              </Button>
-            </motion.div>
-          </nav>
+                <Send className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <span>Enter Official Telegram Channel</span>
+                <ArrowUpRight className="w-3.5 h-3.5 opacity-60" />
+              </a>
+
+              <div className="flex items-center justify-between text-[11px] text-white/50 pt-2 border-t border-white/[0.06]">
+                <span className="inline-flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  Zero Spam • Verified Signals
+                </span>
+                <span className="text-white/40">15,000+ Active Traders</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Wordmark Stage */}
+        {/* Regulatory Risk Notice Box */}
+        <div className="py-8 border-b border-white/[0.08] relative z-10">
+          <div className="p-5 rounded-xl bg-white/[0.02] border border-white/[0.06] flex flex-col md:flex-row items-start md:items-center gap-4 text-white/50 text-[11px] leading-relaxed">
+            <div className="flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/[0.05] border border-white/10 font-mono text-[10px] tracking-wider uppercase text-white/70">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+              Risk Disclosure
+            </div>
+            <p className="flex-1">
+              Trading Foreign Exchange (Forex), Bullion, and Contracts for Difference (CFDs) carries a substantial level of risk and may not be suitable for all investors. Leveraged instruments amplify both potential profits and potential downside losses. Past performance, backtested analytics, and historical trade setups are not guarantees of future outcomes. All information provided by SirHansFelix is for educational, analytical, and strategic market review purposes only.
+            </p>
+          </div>
+        </div>
+
+        {/* Large Ambient Wordmark Stage with Interactive Spotlight */}
         <div 
           ref={stageRef}
           onPointerMove={handlePointerMove}
           onPointerEnter={handlePointerEnter}
           onPointerLeave={handlePointerLeave}
-          className="relative flex-1 flex items-center justify-center min-h-[300px] lg:min-h-[420px] w-full select-none"
+          className="relative flex items-center justify-center py-12 lg:py-16 w-full select-none"
         >
           {/* Wordmark Scroll Reveal */}
           <motion.div
@@ -214,16 +368,16 @@ export function WordmarkFooter() {
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="relative w-full flex justify-center items-center"
           >
-            <div className="relative flex justify-center items-center w-full max-w-[96%]">
+            <div className="relative flex justify-center items-center w-full max-w-[98%]">
                 {/* Layer A: Base Semantic Wordmark */}
-                <div className="text-[clamp(40px,10.5vw,164px)] font-bold tracking-[-0.04em] lg:tracking-[-0.06em] leading-[0.85] text-white/10 w-full text-center">
+                <div className="text-[clamp(38px,11vw,168px)] font-bold tracking-[-0.04em] lg:tracking-[-0.06em] leading-[0.85] text-white/10 w-full text-center">
                   SIRHANSFELIX
                 </div>
 
-                {/* Layer B: Reveal Wordmark */}
+                {/* Layer B: Reveal Wordmark with Spotlight */}
                 <div 
                   aria-hidden="true"
-                  className="wordmark-reveal-layer absolute inset-0 flex items-center justify-center text-[clamp(40px,10.5vw,164px)] font-bold tracking-[-0.04em] lg:tracking-[-0.06em] leading-[0.85] text-white/95 w-full text-center"
+                  className="wordmark-reveal-layer absolute inset-0 flex items-center justify-center text-[clamp(38px,11vw,168px)] font-bold tracking-[-0.04em] lg:tracking-[-0.06em] leading-[0.85] text-white/95 w-full text-center"
                 >
                   SIRHANSFELIX
                 </div>
@@ -231,19 +385,25 @@ export function WordmarkFooter() {
           </motion.div>
         </div>
 
-        {/* Footer Bottom Rail — scroll reveal */}
+        {/* Footer Bottom Rail */}
         <motion.div
           ref={bottomRailRef}
           variants={fadeUp}
           initial="hidden"
           animate={bottomInView ? "show" : "hidden"}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: shouldReduceMotion ? 0 : 0.15 }}
-          className="flex flex-col sm:flex-row justify-between items-center py-6 lg:py-8 border-t border-white/10 gap-4 mt-auto relative z-10"
+          className="flex flex-col sm:flex-row justify-between items-center py-8 border-t border-white/10 gap-4 mt-auto relative z-10 text-[12px] text-white/50"
         >
-          <div className="text-xs text-white/50 tracking-wide">&copy; {new Date().getFullYear()} SirHansFelix. All rights reserved.</div>
-          <div className="flex gap-6 text-xs text-white/50 tracking-wide">
+          <div className="flex items-center gap-2">
+            <span>&copy; {new Date().getFullYear()} SirHansFelix Praxis Desk. All rights reserved.</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-6 text-white/60">
+            <a href="#signals" className="hover:text-white transition-colors duration-200">Signals</a>
+            <a href="#broker" className="hover:text-white transition-colors duration-200">Broker Protocol</a>
+            <a href="#apply" className="hover:text-white transition-colors duration-200">Trader Intake</a>
             <a href="#" className="hover:text-white transition-colors duration-200">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors duration-200">Terms of Service</a>
+            <a href="#" className="hover:text-white transition-colors duration-200">Terms of Desk</a>
           </div>
         </motion.div>
 
