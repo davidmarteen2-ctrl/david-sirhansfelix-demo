@@ -126,7 +126,7 @@ export function ImmersiveCTAStage() {
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
       // Soft Footer Handoff: The gradient seamlessly merges with the footer black without animating out.
-      className="relative w-full py-16 lg:py-24 px-4 lg:px-8 bg-gradient-to-b from-[#FAF9F8] via-[#FAF9F8] to-[#050505] overflow-hidden"
+      className="relative w-full pt-16 pb-28 lg:pt-24 lg:pb-36 px-4 lg:px-8 bg-gradient-to-b from-[#FAF9F8] via-[#FAF9F8] to-[#050505] overflow-hidden"
     >
       <motion.div 
         initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.988, y: 14 }}

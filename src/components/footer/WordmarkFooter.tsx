@@ -7,11 +7,13 @@ export function WordmarkFooter() {
   const shouldReduceMotion = useReducedMotion();
   const footerRef = React.useRef<HTMLElement>(null);
   const stageRef = React.useRef<HTMLDivElement>(null);
-  const topRailRef = React.useRef<HTMLDivElement>(null);
+  const topRailRef    = React.useRef<HTMLDivElement>(null);
   const bottomRailRef = React.useRef<HTMLDivElement>(null);
+  const wordmarkRef   = React.useRef<HTMLDivElement>(null);
 
   const topRailInView   = useInView(topRailRef,    { once: true, margin: "-8% 0px" });
   const bottomInView    = useInView(bottomRailRef, { once: true, margin: "-8% 0px" });
+  const wordmarkInView  = useInView(wordmarkRef,   { once: true, margin: "-12% 0px" });
 
   // Pointer smoothing refs
   const targetX = React.useRef(0);
@@ -110,13 +112,6 @@ export function WordmarkFooter() {
     <footer
       ref={footerRef}
       className="relative w-full bg-[#050505] text-white overflow-hidden"
-      style={{
-        /* Rounded top edge that slides up and overtakes the form section */
-        borderRadius: "48px 48px 0 0",
-        marginTop: "-48px",
-        position: "relative",
-        zIndex: 10,
-      }}
     >
       
       <style dangerouslySetInnerHTML={{__html: `
@@ -202,11 +197,18 @@ export function WordmarkFooter() {
           onPointerLeave={handlePointerLeave}
           className="relative flex-1 flex items-center justify-center min-h-[300px] lg:min-h-[420px] w-full select-none"
         >
-          {/* Scroll Reveal Wrapper */}
+          {/* Wordmark Scroll Reveal */}
           <motion.div
-            initial={shouldReduceMotion ? { opacity: 1, clipPath: 'inset(0)' } : { opacity: 0.65, clipPath: 'inset(0 0 18% 0)', y: 24 }}
-            animate={isInView ? { opacity: 1, clipPath: 'inset(0 0 0% 0)', y: 0 } : {}}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            ref={wordmarkRef}
+            initial={shouldReduceMotion
+              ? { opacity: 1, clipPath: 'inset(0 0 0% 0)', y: 0 }
+              : { opacity: 0, clipPath: 'inset(0 0 40% 0)', y: 48 }
+            }
+            animate={wordmarkInView
+              ? { opacity: 1, clipPath: 'inset(0 0 0% 0)', y: 0 }
+              : {}
+            }
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="relative w-full flex justify-center items-center"
           >
             <div className="relative flex justify-center items-center w-full max-w-[96%]">
